@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/lrx/MySmartPointer/SmartPointer.h
+iostream
+-
+mutex
+-
+thread
+-
+memory
+-
+atomic
+-
+
+/home/lrx/MySmartPointer/test_SmartPointer.cc
+iostream
+-
+string
+-
+vector
+-
+assert.h
+-
+SmartPointer.h
+/home/lrx/MySmartPointer/SmartPointer.h
+
