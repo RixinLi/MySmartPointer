@@ -4,6 +4,67 @@
 #include <assert.h>
 #include "SmartPointer.h"
 
+// 实现静态类
+/*
+class sclass{
+public:
+    // 重载构造两个构造函数阻止类实例化
+    void* operator new(size_t t){
+        std::cout<<"cannot create a instance of a static class\n";
+        assert(false);
+        return malloc(t);
+    }
+    sclass(){
+        std::cout<<"cannot create a instance of a static class\n";
+        assert(false);
+    }
+
+    // 静态方法
+    static void print(){
+        std::cout<< "this is a static class\n";
+    }
+    //static const int cnt{0}; // 普通静态变量必须在创建时是const
+};
+*/
+
+/*
+int cnt = 0;
+
+class C{
+public:
+
+    // 必须拥有默认构造 除非你不需要改变任何有关构造的东西
+    C(){}
+
+    C& operator=(const C& rth){
+        a = rth.a;
+        return *this;
+    }
+
+    // 拷贝深构造
+    C(const C& rth):a(rth.a){
+    }
+
+    ~C(){
+        cnt++;
+        std::cout<<"destruct cnt: "<<cnt
+        <<std::endl;
+    }
+
+    int a = 0;
+};
+*/
+struct A;
+struct B;
+
+// 循环引用测试
+struct A{
+    SP::SharePtr<B> pb;
+};
+struct B{
+    SP::WeakPtr<A> pa;
+};
+
 int main() {
     /*
     SM::SharedPtr<int> p(new int(10));
@@ -85,10 +146,18 @@ int main() {
     //c.reset(a);  // 切记一个野指针不能同时给两个没有任何关系的已经定义的智能指针实例管理
     */
 
-    SP::SharePtr<int> a (new int(10));
+    /*
+    SP::SharePtr<int> a;
     SP::WeakPtr<int> b(a);
     if (!b.expired()){
         SP::SharePtr<int> c = b.lock();
     }
+    */
+
+
+    SP::SharePtr<A> _a = SP::ShareMake<A>();
+    SP::SharePtr<B> _b = SP::ShareMake<B>();
+    _a->pb = _b;
+    _b->pa = _a;
     return 0;
 }

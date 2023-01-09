@@ -15,6 +15,7 @@
 // SP:自制智能指针类命名空间
 namespace SP{
 
+
     template<typename T> class SharePtr;
     template<typename T> class WeakPtr;
 
@@ -49,11 +50,12 @@ namespace SP{
             // 这里不能直接复制， 必须检查nPtr是否指向nullptr，如果指向nullptr，设置独立的空的SharePtr
             if(nPtr == nullptr){
                 pPtr = nullptr,Count = new Share_Weak_Count(),m_mutex = new std::mutex;
+                std::cout<<"use original but nullptr pointer SharePtr constructor"<<std::endl;
             }
             else{
                 pPtr = nPtr, Count = new Share_Weak_Count(1), m_mutex = new std::mutex;
+                std::cout<<"use original pointer SharePtr constructor"<<std::endl;
             }
-            std::cout<<"use original pointer SharePtr constructor"<<std::endl;
         }
 
         SharePtr(const SharePtr<T>& rPtr)
@@ -97,6 +99,7 @@ namespace SP{
                     release();
                     pPtr = rPtr.pPtr;
                     Count = rPtr.Count;
+                    m_mutex = rPtr.m_mutex; // 。。。
                     Count->ShareCnt++;
                 }
                 else {
@@ -185,8 +188,8 @@ namespace SP{
     protected:
         void release(){
             bool final = false;
-            std::cout<<"releasing "<<Count->ShareCnt<<" SharePtr"<<std::endl;
             m_mutex->lock();
+            std::cout<<"releasing "<<Count->ShareCnt<<" SharePtr"<<std::endl;
             if (pPtr == nullptr || --(Count->ShareCnt)==0){
                 std::cout<< "releasing the original pointer"<<std::endl;
                 delete pPtr;
@@ -274,6 +277,9 @@ namespace SP{
         }
 
         SharePtr<T> lock() const{
+            if(pPtr== nullptr){
+                return SharePtr<T>();
+            }
             return static_cast<SharePtr<T>>(*this);
         }
 
@@ -293,8 +299,16 @@ namespace SP{
         std::mutex* m_mutex;
     };
 
-}
 
+    // 实现我的make_shared
+
+    template<typename T, typename... Args>
+    SharePtr<T> ShareMake(Args&&... args){
+        SharePtr<T> res(new T(std::forward<Args>(args)...));
+        return res;
+    }
+
+}
 
 
 #endif
